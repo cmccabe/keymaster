@@ -1,0 +1,36 @@
+OVERVIEW
+When I was working with Kerberos, I did not find any good way for one process
+to access the kerberos tickets of another.  All of the ways I found required
+the accessing process to run as root.
+
+I wrote this filesystem to expose the kerberos ticket caches of arbitrary
+user ids as files.  So once you mount this, you will set one file per user id
+that has kinit'ed.  Each file will contain the contents of the ticket cache.
+
+EXAMPLE
+$ ls /mnt/keymaster
+0 1012 1040
+
+$ cat /mnt/keymaster/1012
+[kerberos cache contents]
+
+ASSUMPTIONS
+* This program assumes that you are using the FILE: type of ticket cache, and
+that all of your ticket caches are in files of the form "/tmp/krb5cc_${PID}"
+
+* This program assumes that root can access everyone's ticket files.
+
+SECURITY CONSIDERATIONS
+If you set KEYMASTER_PID to a process ID, only that process will be able to
+open files in this filesystem.  This effectively allows you to restrict
+access to a single process.
+
+Of course, even after all is said and done, you still have a single process
+which can access everyone's Kerberos tickets.  So this process has great power.
+
+This program is not really useful for increasing security, but more useful for
+preventing yourself from making accidental mistakes in the "chosen" process.
+The chosen process no longer needs to run as root.
+
+Colin Patrick McCabe
+2012
